@@ -1,0 +1,9 @@
+.env
+.venv/
+.venv-1/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+data/adaptive_phishing_dataset.csv
+data/threat_intelligence/phishtank.csv

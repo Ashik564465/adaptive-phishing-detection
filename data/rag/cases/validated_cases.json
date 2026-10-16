@@ -1,0 +1,13 @@
+[
+  {
+    "domain": "5play.world",
+    "decision": "confirmed_legitimate",
+    "ground_truth": "confirmed_legitimate",
+    "reason": "Validated legitimate domain",
+    "evidence": [
+      "validated test/validation case",
+      "no confirmed malicious identity signal"
+    ],
+    "timestamp": "2026-09-19"
+  }
+]

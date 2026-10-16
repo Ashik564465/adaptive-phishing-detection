@@ -1,0 +1,10 @@
+venv/
+.venv/
+.git/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+tests/
+*.log
+
+data/training/
