@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adaptive Phishing Detection</title>
+<style>
+:root{
+  --bg:#070b13;--panel:#0d1421;--panel2:#111a2a;--border:#223047;
+  --text:#eef3ff;--muted:#91a0ba;--accent:#6d7cff;
+  --danger:#ff6678;--warn:#f3bd55;--safe:#42d39a;--info:#66b7ff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+  radial-gradient(circle at 15% 0%,rgba(109,124,255,.13),transparent 32%),
+  radial-gradient(circle at 90% 10%,rgba(66,211,154,.07),transparent 28%),var(--bg);
+  color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+}
+.container{max-width:1180px;margin:auto;padding:34px 20px 70px}
+.hero{text-align:center;margin:12px auto 28px;max-width:850px}
+.badge{display:inline-flex;padding:7px 12px;border:1px solid #2b3852;border-radius:999px;color:#aebaff;background:#0d1422;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+h1{font-size:42px;line-height:1.1;margin:16px 0 10px}
+.hero p{color:var(--muted);font-size:16px;margin:0}
+.search{background:rgba(13,20,33,.9);border:1px solid var(--border);border-radius:18px;padding:16px;display:flex;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+input{flex:1;min-width:0;background:#080e18;border:1px solid #2a3851;border-radius:12px;color:#fff;padding:16px;font-size:16px;outline:none}
+input:focus{border-color:var(--accent)}
+button{border:0;border-radius:12px;background:var(--accent);color:white;padding:0 24px;font-weight:800;cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}
+.notice,.error{margin-top:14px;padding:13px 15px;border-radius:12px;display:none}
+.notice{background:#0c1625;border:1px solid #243550;color:#aebbd2}
+.error{background:#281018;border:1px solid #63303b;color:#ffb9c2}
+#report{display:none;margin-top:22px}
+.decision{display:grid;grid-template-columns:1fr auto;gap:20px;background:linear-gradient(135deg,#101a2b,#0c1320);border:1px solid var(--border);border-radius:18px;padding:24px}
+.kicker{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.1em;font-weight:800}
+.decision h2{margin:7px 0 5px;font-size:34px;text-transform:uppercase}
+.decision p{margin:0;color:var(--muted)}
+.conf{text-align:right}.conf strong{display:block;font-size:34px}.conf span{color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+.card{background:rgba(13,20,33,.9);border:1px solid var(--border);border-radius:16px;padding:20px}
+.card h3{margin:0 0 16px;font-size:16px}
+.full{grid-column:1/-1}
+.rows{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:180px 1fr;gap:15px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.row:last-child{border-bottom:0}.key{color:var(--muted);font-size:13px}.value{font-size:14px;word-break:break-word}
+.chip{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:800;background:#182236;border:1px solid #2a3a55}
+.chip.safe{color:var(--safe)}.chip.bad{color:var(--danger)}.chip.warn{color:var(--warn)}
+.list{margin:0;padding-left:18px;color:#cbd5e8}.list li{margin:6px 0}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}
+.urlbox{margin-top:14px;padding:13px;border-radius:11px;background:#080e18;border:1px solid #1c293e;color:#aebbd2;word-break:break-all}
+.empty{color:#71809a;font-style:italic}
+.footer{text-align:center;color:#64718a;font-size:12px;margin-top:25px}
+@media(max-width:760px){
+  .search{flex-direction:column}.search button{height:50px}
+  .grid{grid-template-columns:1fr}.full{grid-column:auto}
+  .decision{grid-template-columns:1fr}.conf{text-align:left}
+  .row{grid-template-columns:1fr;gap:4px}
+  h1{font-size:32px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="hero">
+    <div class="badge">Adaptive Security Intelligence</div>
+    <h1>Adaptive Phishing Detection</h1>
+    <p>Multi-layer URL analysis using machine learning, threat intelligence, identity signals, DNS, TLS and evidence fusion.</p>
+  </header>
+
+  <section class="search">
+    <input id="urlInput" type="text" placeholder="Enter URL, e.g. https://example.com" autocomplete="off">
+    <button id="analyzeBtn">Analyze URL</button>
+  </section>
+  <div id="notice" class="notice"></div>
+  <div id="error" class="error"></div>
+
+  <main id="report">
+    <section class="decision">
+      <div>
+        <div class="kicker">Final Decision</div>
+        <h2 id="decisionLabel">—</h2>
+        <p id="decisionMessage">—</p>
+        <div class="urlbox mono" id="analyzedUrl">—</div>
+      </div>
+      <div class="conf">
+        <strong id="confidence">—</strong>
+        <span>CONFIDENCE</span>
+        <div style="margin-top:12px" id="riskChip" class="chip">Risk: —</div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h3>Decision & Action</h3>
+        <div class="rows">
+          <div class="row"><div class="key">Decision basis</div><div class="value" id="basis">—</div></div>
+          <div class="row"><div class="key">Recommended action</div><div class="value" id="action">—</div></div>
+          <div class="row"><div class="key">Evidence agreement</div><div class="value" id="agreement">—</div></div>
+          <div class="row"><div class="key">Evidence quality</div><div class="value" id="quality">—</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Machine Learning</h3>
+        <div class="rows">
+          <div class="row"><div class="key">Phishing probability</div><div class="value" id="mlProbability">—</div></div>
+          <div class="row"><div class="key">Interpretation</div><div class="value" id="mlInterpretation">—</div></div>
+          <div class="row"><div class="key">Evidence role</div><div class="value" id="mlWeight">—</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Threat Intelligence</h3>
+        <div class="rows">
+          <div class="row"><div class="key">Overall status</div><div class="value" id="tiStatus">—</div></div>
+          <div class="row"><div class="key">PhishTank</div><div class="value" id="phishtank">—</div></div>
+          <div class="row"><div class="key">OpenPhish</div><div class="value" id="openphish">—</div></div>
+          <div class="row"><div class="key">URLhaus</div><div class="value" id="urlhaus">—</div></div>
+          <div class="row"><div class="key">Known phishing</div><div class="value" id="knownPhishing">—</div></div>
+          <div class="row"><div class="key">Known malware</div><div class="value" id="knownMalware">—</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Identity & Impersonation</h3>
+        <div class="rows">
+          <div class="row"><div class="key">Brand</div><div class="value" id="brand">—</div></div>
+          <div class="row"><div class="key">Official domain</div><div class="value" id="officialDomain">—</div></div>
+          <div class="row"><div class="key">Brand mismatch</div><div class="value" id="brandMismatch">—</div></div>
+          <div class="row"><div class="key">Typosquatting</div><div class="value" id="typo">—</div></div>
+          <div class="row"><div class="key">Typosquatting method</div><div class="value" id="typoMethod">—</div></div>
+          <div class="row"><div class="key">Homograph</div><div class="value" id="homograph">—</div></div>
+          <div class="row"><div class="key">Punycode</div><div class="value" id="punycode">—</div></div>
+          <div class="row"><div class="key">Mixed script</div><div class="value" id="mixedScript">—</div></div>
+        </div>
+      </section>
+
+      <section class="card full">
+        <h3>DNS Intelligence</h3>
+        <div class="rows">
+          <div class="row"><div class="key">Status</div><div class="value" id="dnsStatus">—</div></div>
+          <div class="row"><div class="key">Hostname</div><div class="value mono" id="dnsHostname">—</div></div>
+          <div class="row"><div class="key">A records</div><div class="value mono" id="dnsA">—</div></div>
+          <div class="row"><div class="key">AAAA records</div><div class="value mono" id="dnsAAAA">—</div></div>
+          <div class="row"><div class="key">MX records</div><div class="value mono" id="dnsMX">—</div></div>
+          <div class="row"><div class="key">NS records</div><div class="value mono" id="dnsNS">—</div></div>
+          <div class="row"><div class="key">CNAME records</div><div class="value mono" id="dnsCNAME">—</div></div>
+          <div class="row"><div class="key">TXT records</div><div class="value mono" id="dnsTXT">—</div></div>
+          <div class="row"><div class="key">Signals</div><div class="value" id="dnsSignals">—</div></div>
+          <div class="row"><div class="key">Errors</div><div class="value" id="dnsErrors">—</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>TLS / HTTPS Analysis</h3>
+        <div class="rows">
+          <div class="row"><div class="key">Status</div><div class="value" id="tlsStatus">—</div></div>
+          <div class="row"><div class="key">HTTPS</div><div class="value" id="tlsHttps">—</div></div>
+          <div class="row"><div class="key">Issuer</div><div class="value" id="tlsIssuer">—</div></div>
+          <div class="row"><div class="key">Subject</div><div class="value" id="tlsSubject">—</div></div>
+          <div class="row"><div class="key">Valid from</div><div class="value" id="tlsFrom">—</div></div>
+          <div class="row"><div class="key">Valid until</div><div class="value" id="tlsUntil">—</div></div>
+          <div class="row"><div class="key">Hostname match</div><div class="value" id="tlsMatch">—</div></div>
+          <div class="row"><div class="key">SAN</div><div class="value mono" id="tlsSan">—</div></div>
+          <div class="row"><div class="key">Signals</div><div class="value" id="tlsSignals">—</div></div>
+          <div class="row"><div class="key">Errors</div><div class="value" id="tlsErrors">—</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Domain Intelligence</h3>
+        <div class="rows">
+          <div class="row"><div class="key">Status</div><div class="value" id="domainStatus">—</div></div>
+          <div class="row"><div class="key">Hostname</div><div class="value mono" id="hostname">—</div></div>
+          <div class="row"><div class="key">Registered domain</div><div class="value mono" id="registeredDomain">—</div></div>
+          <div class="row"><div class="key">Subdomain</div><div class="value mono" id="subdomain">—</div></div>
+          <div class="row"><div class="key">Scheme</div><div class="value" id="scheme">—</div></div>
+          <div class="row"><div class="key">Port</div><div class="value" id="port">—</div></div>
+          <div class="row"><div class="key">Domain age</div><div class="value" id="domainAge">—</div></div>
+          <div class="row"><div class="key">Registrar</div><div class="value" id="registrar">—</div></div>
+          <div class="row"><div class="key">Nameservers</div><div class="value mono" id="nameservers">—</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Reasoning</h3>
+        <div class="rows">
+          <div class="row"><div class="key">Positive signals</div><div class="value" id="positiveSignals">—</div></div>
+          <div class="row"><div class="key">Negative signals</div><div class="value" id="negativeSignals">—</div></div>
+          <div class="row"><div class="key">Contradictions</div><div class="value" id="contradictions">—</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>RAG Investigation</h3>
+        <div class="rows">
+          <div class="row"><div class="key">Status</div><div class="value" id="ragStatus">—</div></div>
+          <div class="row"><div class="key">Closest case</div><div class="value" id="ragCase">—</div></div>
+          <div class="row"><div class="key">Supporting knowledge</div><div class="value" id="ragKnowledge">—</div></div>
+          <div class="row"><div class="key">Investigation</div><div class="value" id="ragInvestigation">—</div></div>
+        </div>
+      </section>
+
+      <section class="card full">
+        <h3>Engine Metadata & Overrides</h3>
+        <div class="rows">
+          <div class="row"><div class="key">Engine</div><div class="value" id="engine">—</div></div>
+          <div class="row"><div class="key">Version</div><div class="value" id="version">—</div></div>
+          <div class="row"><div class="key">Overrides</div><div class="value" id="overrides">—</div></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="footer">Adaptive Evidence Risk Engine • Live analysis report</div>
+</div>
+
+<script>
+const API_URL="https://v43zg3og23.execute-api.ap-southeast-2.amazonaws.com/analyze";
+const $=id=>document.getElementById(id);
+
+function val(x){
+  if(x===null||x===undefined||x==="") return "—";
+  if(Array.isArray(x)) return x.length ? x.join(", ") : "None";
+  if(typeof x==="boolean") return x ? "Yes" : "No";
+  if(typeof x==="object") return JSON.stringify(x);
+  return String(x);
+}
+function listVal(x){
+  if(!Array.isArray(x)||!x.length) return '<span class="empty">None reported</span>';
+  return '<ul class="list">'+x.map(v=>`<li>${escapeHtml(typeof v==="object"?JSON.stringify(v):String(v))}</li>`).join("")+"</ul>";
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+function set(id,x){$(id).innerHTML=typeof x==="string"&&x.includes("<")?x:escapeHtml(val(x));}
+
+async function analyze(){
+  const url=$("urlInput").value.trim();
+  $("error").style.display="none"; $("notice").style.display="none"; $("report").style.display="none";
+  if(!url){$("error").textContent="Please enter a URL."; $("error").style.display="block"; return;}
+  try{new URL(url)}catch{
+    $("error").textContent="Enter a valid URL including http:// or https://.";
+    $("error").style.display="block"; return;
+  }
+
+  $("analyzeBtn").disabled=true;
+  $("notice").textContent="Analyzing URL across security intelligence layers. This may take several seconds...";
+  $("notice").style.display="block";
+
+  try{
+    const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url})});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error||"API request failed");
+
+    const dec=d.decision||{}, sum=d.summary||{}, e=d.evidence||{}, ml=e.machine_learning||{};
+    const ti=e.threat_intelligence||{}, id=e.identity||{}, ty=e.typosquatting||{}, ho=e.homograph||{};
+    const dns=e.dns||{}, tls=e.tls||{}, dom=e.domain||{}, reason=d.reasoning||{}, rag=d.rag||{}, meta=d.metadata||{};
+
+    set("decisionLabel",dec.label); set("decisionMessage",sum.message);
+    set("analyzedUrl",d.url); set("confidence",typeof dec.confidence==="number"?dec.confidence.toFixed(1)+"%":"—");
+    set("riskChip","Risk: "+val(dec.risk_level)); set("basis",dec.decision_basis); set("action",sum.recommended_action);
+    set("agreement",reason.evidence_agreement); set("quality",reason.evidence_quality);
+
+    set("mlProbability",typeof ml.phishing_probability==="number"?(ml.phishing_probability*100).toFixed(2)+"%":null);
+    set("mlInterpretation",ml.interpretation); set("mlWeight",ml.weight);
+
+    set("tiStatus",ti.status); set("phishtank",ti.sources?.phishtank); set("openphish",ti.sources?.openphish);
+    set("urlhaus",ti.sources?.urlhaus); set("knownPhishing",ti.known_phishing); set("knownMalware",ti.known_malware);
+
+    set("brand",id.brand); set("officialDomain",id.official_domain); set("brandMismatch",id.brand_mismatch);
+    set("typo",ty.detected); set("typoMethod",ty.method); set("homograph",ho.detected);
+    set("punycode",ho.punycode); set("mixedScript",ho.mixed_script);
+
+    set("dnsStatus",dns.status); set("dnsHostname",dns.hostname);
+    set("dnsA",dns.records?.A); set("dnsAAAA",dns.records?.AAAA); set("dnsMX",dns.records?.MX);
+    set("dnsNS",dns.records?.NS); set("dnsCNAME",dns.records?.CNAME); set("dnsTXT",dns.records?.TXT);
+    set("dnsSignals",listVal(dns.signals?.map(x=>typeof x==="object"?`${x.signal}: ${x.interpretation}`:x)));
+    set("dnsErrors",listVal(dns.errors?.map(x=>typeof x==="object"?`${x.type}: ${x.message}`:x)));
+
+    set("tlsStatus",tls.status); set("tlsHttps",tls.https);
+    set("tlsIssuer",tls.certificate?.issuer); set("tlsSubject",tls.certificate?.subject);
+    set("tlsFrom",tls.certificate?.valid_from); set("tlsUntil",tls.certificate?.valid_until);
+    set("tlsMatch",tls.certificate?.hostname_match); set("tlsSan",tls.certificate?.san);
+    set("tlsSignals",listVal(tls.signals?.map(x=>typeof x==="object"?`${x.signal}: ${x.interpretation}`:x)));
+    set("tlsErrors",listVal(tls.errors?.map(x=>typeof x==="object"?`${x.type}: ${x.message}`:x)));
+
+    set("domainStatus",dom.status); set("hostname",dom.hostname); set("registeredDomain",dom.registered_domain);
+    set("subdomain",dom.subdomain); set("scheme",dom.scheme); set("port",dom.port);
+    set("domainAge",dom.domain_age_days!=null?dom.domain_age_days+" days":null);
+    set("registrar",dom.registrar); set("nameservers",dom.nameservers);
+
+    set("positiveSignals",listVal(reason.positive_signals));
+    set("negativeSignals",listVal(reason.negative_signals));
+    set("contradictions",listVal(reason.contradictions?.map(x=>typeof x==="object"?`${x.type}: ${x.resolution}`:x)));
+
+    set("ragStatus",rag.status); set("ragCase",rag.closest_case);
+    set("ragKnowledge",listVal(rag.supporting_knowledge));
+    set("ragInvestigation",rag.investigation);
+
+    set("engine",meta.engine); set("version",meta.version);
+    set("overrides",listVal(d.overrides?.map(x=>typeof x==="object"?`${x.source}: ${x.reason}`:x)));
+
+    $("report").style.display="block";
+  }catch(err){
+    $("error").textContent=err.message||"Unable to reach the analysis API.";
+    $("error").style.display="block";
+  }finally{
+    $("notice").style.display="none"; $("analyzeBtn").disabled=false;
+  }
+}
+$("analyzeBtn").addEventListener("click",analyze);
+$("urlInput").addEventListener("keydown",e=>{if(e.key==="Enter")analyze();});
+</script>
+</body>
+</html>

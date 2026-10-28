@@ -5,3 +5,8 @@ __pycache__/
 .DS_Store
 adaptive-ui/*.backup
 main-dashboard/*.backup
+
+models/
+data/
+*.bin
+*.pkl

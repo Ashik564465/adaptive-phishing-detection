@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adaptive URL Intelligence</title>
+<style>
+:root{--bg:#080b12;--p:#10151f;--p2:#0b1018;--b:#222c3b;--t:#e9eef7;--m:#8d99aa;--g:#36d17f;--r:#ff5d6c;--y:#f4bd4d;--a:#7c9cff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -15%,#1b2740,#080b12 48%);color:var(--t);font:14px/1.5 Segoe UI,Arial,sans-serif}.wrap{max-width:1250px;margin:auto;padding:28px}
+header{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:20px}.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border:1px solid #35425a;border-radius:12px;display:grid;place-items:center;color:var(--a);font-weight:800}.title{font-size:21px;font-weight:750}.sub,.muted{color:var(--m);font-size:12px}.badge{border:1px solid var(--b);padding:7px 11px;border-radius:99px;color:#b9c3d2;background:#0d131d}
+form{display:flex;gap:10px;background:var(--p);border:1px solid var(--b);padding:10px;border-radius:15px;margin-bottom:18px}input{flex:1;background:#090e16;color:var(--t);border:1px solid #293446;border-radius:10px;padding:13px;outline:0}button{background:var(--a);border:0;border-radius:10px;padding:0 22px;font-weight:750;cursor:pointer}button:disabled{opacity:.5}
+.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}.card{background:linear-gradient(180deg,var(--p),var(--p2));border:1px solid var(--b);border-radius:15px;padding:18px;margin-bottom:16px}.card h2{font-size:14px;margin:0 0 14px}.eyebrow{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.12em}
+.decision{display:flex;justify-content:space-between;gap:20px;align-items:center}.decision h1{font-size:31px;margin:3px 0;text-transform:uppercase}.safe{color:var(--g)}.phishing{color:var(--r)}.unknown{color:var(--y)}.url{word-break:break-all;color:#b9c4d5}.score{text-align:right}.score strong{font-size:28px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.item{background:#0b1018;border:1px solid #1c2634;border-radius:10px;padding:11px}.label{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em}.value{font-weight:650;margin-top:3px;word-break:break-word}
+.row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #1b2430}.row:last-child{border-bottom:0}.good{color:var(--g)}.bad{color:var(--r)}.warn{color:var(--y)}
+.note{background:#0c121c;border:1px solid #263246;border-radius:10px;padding:12px;color:#aeb9c9;margin-top:12px}.empty{text-align:center;color:var(--m);padding:42px}.raw{white-space:pre-wrap;word-break:break-word;color:#b9c4d5;font-size:12px}details{border:1px solid #1d2735;border-radius:10px;padding:10px;background:#0b1018}summary{cursor:pointer;font-weight:650}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.kv{grid-template-columns:1fr}.decision{align-items:flex-start;flex-direction:column}.score{text-align:left}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div class="brand"><div class="logo">AI</div><div><div class="title">Adaptive URL Intelligence</div><div class="sub">Evidence fusion · ML · brand identity · DNS · TLS · threat intelligence</div></div></div><div class="badge" id="engine">Engine: waiting</div></header>
+<form id="form"><input id="url" type="url" required placeholder="https://www.vit.ac.in"><button id="btn">Analyze URL</button></form>
+<div id="content" class="empty">Enter a URL to inspect the complete evidence chain.</div>
+</div>
+<script>
+const API="https://v43zg3og23.execute-api.ap-southeast-2.amazonaws.com/analyze";
+const $=x=>document.getElementById(x);
+const esc=x=>String(x??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const yn=x=>x===true?"Yes":x===false?"No":"Unknown";
+function card(t,b){return `<section class="card"><h2>${t}</h2>${b}</section>`}
+function kv(o){return `<div class="kv">${Object.entries(o).map(([k,v])=>`<div class="item"><div class="label">${esc(k.replaceAll("_"," "))}</div><div class="value">${esc(v)}</div></div>`).join("")}</div>`}
+function list(a){return Array.isArray(a)&&a.length?a.map(x=>`<div class="row"><span>${esc(x)}</span></div>`).join(""):`<div class="muted">None reported</div>`}
+function render(raw){
+ const d=raw.body?JSON.parse(raw.body):raw, dec=d.decision||{},ev=d.evidence||{},ml=ev.machine_learning||{},ti=ev.threat_intelligence||{},id=ev.identity||{},ty=ev.typosquatting||{},ho=ev.homograph||{},dom=ev.domain||{},dns=ev.dns||{},tls=ev.tls||{},rs=d.reasoning||{},meta=d.metadata||{};
+ const cls=dec.label==="phishing"?"phishing":dec.label==="safe"?"safe":"unknown";
+ $("engine").textContent=`Engine: ${meta.engine||"Adaptive Evidence Risk Engine"} · v${meta.version||"?"}`;
+ let h=card("Final assessment",`<div class="decision"><div><div class="eyebrow">Decision</div><h1 class="${cls}">${esc(dec.label||d.final_decision||"unknown")}</h1><div class="url">${esc(d.url)}</div></div><div class="score"><strong>${esc(dec.confidence)}%</strong><div class="${cls}">${esc(dec.risk_level||"unknown")} risk</div></div></div><br>${kv({"Decision basis":dec.decision_basis,"Recommended action":dec.summary?.recommended_action,"Evidence agreement":rs.evidence_agreement,"Evidence quality":rs.evidence_quality})}`);
+ h+=card("Decision reasoning",`<div class="row"><b>Positive evidence</b><span class="good">${rs.positive_signals?.length||0}</span></div>${list(rs.positive_signals)}<div class="row"><b>Negative evidence</b><span class="bad">${rs.negative_signals?.length||0}</span></div>${list(rs.negative_signals)}<div class="row"><b>Contradictions</b><span class="${rs.contradictions?.length?"warn":"good"}">${rs.contradictions?.length||0}</span></div>${list(rs.contradictions)}<div class="note">${esc(dec.summary?.message||"")}</div>`);
+ h+=card("Machine learning",kv({"Phishing probability":ml.phishing_probability!=null?(ml.phishing_probability*100).toFixed(2)+"%":"—","Interpretation":ml.interpretation,"Evidence role":ml.weight}));
+ h+=card("Brand / identity",kv({"Detected brand":id.brand||"None","Official domain":yn(id.official_domain),"Brand mismatch":yn(id.brand_mismatch),"Matched registry brand":d.matched_brand||"NONE","Allowlisted / validated":yn(d.is_allowlisted),"Brand spoofing":yn(d.brand_spoofing_detected)})+`<div class="note"><b>500-brand registry:</b> Brand detection should only use configured protected brands and valid domain-matching rules. A short substring such as <b>vi</b> inside <b>vit.ac.in</b> must not become a brand match unless that brand is actually present in the registry and the matching rule is valid.</div>`);
+ h+=card("Domain & infrastructure",kv({"Registered domain":dom.registered_domain,"Domain age":dom.domain_age_days!=null?dom.domain_age_days+" days":"—","Registrar":dom.registrar||"—","DNS valid":yn(d.infrastructure_checks?.dns_valid??d.infrastructure_checks?.dns_valid),"TLS valid":yn(d.infrastructure_checks?.tls_valid),"TLS SAN matched":yn(d.infrastructure_checks?.san_matched)}));
+ h+=card("TLS identity",kv({"HTTPS":yn(tls.https),"Hostname match":yn(tls.certificate?.hostname_match),"SAN match":yn(tls.certificate?.san_matched),"Subject":tls.certificate?.subject,"Issuer":tls.certificate?.issuer,"Valid from":tls.certificate?.valid_from,"Valid until":tls.certificate?.valid_until}));
+ h+=card("DNS intelligence",kv({"A":(dns.records?.A||[]).join(", ")||"None","AAAA":(dns.records?.AAAA||[]).join(", ")||"None","MX":(dns.records?.MX||[]).join(", ")||"None","NS":(dns.records?.NS||[]).join(", ")||"None","CNAME":(dns.records?.CNAME||[]).join(", ")||"None","Status":dns.status}));
+ h+=card("Threat intelligence",kv({"Overall":ti.status||"unknown","PhishTank":ti.sources?.phishtank||"unknown","OpenPhish":ti.sources?.openphish||"unknown","URLhaus":ti.sources?.urlhaus||"unknown","Known phishing":yn(ti.known_phishing),"Known malware":yn(ti.known_malware)}));
+ h+=card("Impersonation checks",kv({"Typosquatting":yn(ty.detected),"Method":ty.method,"Homograph":yn(ho.detected),"Punycode":yn(ho.punycode),"Mixed script":yn(ho.mixed_script)}));
+ h+=card("Decision consistency",`<div class="row"><span>ML phishing probability</span><b class="bad">${ml.phishing_probability!=null?(ml.phishing_probability*100).toFixed(2)+"%":"—"}</b></div><div class="row"><span>Final decision</span><b class="${cls}">${esc(dec.label||"—")}</b></div><div class="row"><span>Conflict explicitly recorded</span><b class="${rs.contradictions?.length?"warn":"good"}">${rs.contradictions?.length?"Yes":"No"}</b></div><div class="note">The dashboard preserves the ML result even when independent legitimacy evidence changes the final arbitration outcome.</div>`);
+ h+=card("Raw API evidence",`<details><summary>Show complete response</summary><pre class="raw">${esc(JSON.stringify(d,null,2))}</pre></details>`);
+ $("content").innerHTML=h;
+}
+$("form").onsubmit=async e=>{e.preventDefault();$("btn").disabled=true;$("btn").textContent="Analyzing...";$("content").innerHTML="<div class='empty'>Collecting evidence…</div>";try{let r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:$("url").value.trim()})});let x=await r.json();if(!r.ok)throw Error(x.error||"API error");render(x)}catch(e){$("content").innerHTML=`<div class="empty" style="color:var(--r)">Analysis failed: ${esc(e.message)}</div>`}finally{$("btn").disabled=false;$("btn").textContent="Analyze URL"}};
+</script>
+</body>
+</html>
