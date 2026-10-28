@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d0f15">
+  <title>Adaptive Phishing Detection | CyberShield</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="../index.html"><span class="brand-mark">S</span><span>CyberShield<small>Detection platform</small></span></a>
+    <label class="side-label" for="apiUrl">API URL</label>
+    <input id="apiUrl" class="api-input" type="url" value="https://v43zg3og23.execute-api.ap-southeast-2.amazonaws.com" spellcheck="false">
+    <section class="side-section">
+      <h2>System Status</h2>
+      <div id="apiStatus" class="status-badge pending"><span class="status-dot"></span><span>Checking APIâ€¦</span></div>
+      <p class="side-detail">Service: <strong id="serviceName">adaptive-phishing-detection</strong></p>
+      <p class="side-detail">Adaptive Memory: <strong id="memoryCount">â€”</strong> documents</p>
+    </section>
+    <section class="side-section">
+      <h2>Channel</h2>
+      <label class="radio-row"><input type="radio" name="sideChannel" value="EMAIL" checked> EMAIL</label>
+      <label class="radio-row"><input type="radio" name="sideChannel" value="SMS"> SMS</label>
+    </section>
+    <p class="side-foot">Backend risk scoring remains the source of truth.</p>
+  </aside>
+
+  <main class="main">
+    <header class="page-head">
+      <div><p class="eyebrow">MULTI-LAYER EMAIL AND SMS THREAT INTELLIGENCE</p>
+        <h1>Adaptive Phishing Detection System</h1>
+        <p class="subtitle">Analyze suspicious messages and inspect the evidence behind each result.</p></div>
+      <a class="back-link" href="../index.html">â† Main portal</a>
+    </header>
+
+    <section class="section">
+      <div class="section-title"><h2>Message Details</h2><span class="section-hint">Analysis runs through your deployed API</span></div>
+      <div class="sample-row">
+        <button type="button" id="loadPhishing" class="button subtle">Load phishing example</button>
+        <button type="button" id="loadSafe" class="button subtle">Load legitimate example</button>
+      </div>
+      <form id="detectForm" class="form">
+        <div class="form-grid">
+          <label>Sender<input id="sender" maxlength="320" placeholder="security@example.com"></label>
+          <label>Receiver<input id="receiver" maxlength="320" placeholder="recipient@example.com"></label>
+          <label class="full">Subject<input id="subject" maxlength="300" placeholder="Message subject"></label>
+          <label class="full">Optional .eml file <span class="hint">Local text extraction is not enabled in this version.</span><input id="emlFile" type="file" accept=".eml,message/rfc822"></label>
+          <label class="full">Message Body<textarea id="message" required minlength="3" maxlength="20000" rows="5" placeholder="Paste the email or SMS message here. Do not enter real passwords, OTPs, or private credentials."></textarea></label>
+          <label class="full">Message ID<input id="messageId" maxlength="120" placeholder="Generated automatically"></label>
+        </div>
+        <div class="form-actions"><button type="submit" id="analyzeBtn" class="button primary">Analyze Message <span>â†’</span></button><button type="button" id="clearBtn" class="button subtle">Clear</button><span id="formStatus" class="form-status" role="status"></span></div>
+      </form>
+    </section>
+
+    <section id="results" class="section results" hidden aria-live="polite">
+      <h2>Detection Result</h2>
+      <div class="decision-card"><div><span class="muted">Classification</span><h3 id="classification">â€”</h3></div><div class="decision-score"><span class="muted">Risk Score</span><strong id="riskScore">â€”</strong></div></div>
+      <div class="section-title risk-title"><h2>Risk Dashboard</h2><span class="muted">Backend response</span></div>
+      <div class="risk-track"><span id="riskBar"></span></div>
+      <div class="metric-grid">
+        <div class="metric"><span>NLP / Transformer</span><strong id="probability">â€”</strong></div>
+        <div class="metric"><span>Identity</span><strong id="identityRisk">â€”</strong></div>
+        <div class="metric"><span>Behavioral</span><strong id="behaviorRisk">â€”</strong></div>
+        <div class="metric"><span>Historical Threat Memory</span><strong id="historicalRisk">â€”</strong></div>
+      </div>
+      <p class="retrieved">Retrieved threats: <strong id="threatCount">â€”</strong> Â· Gemini reasoning: <strong id="geminiUsed">â€”</strong></p>
+      <h2 class="evidence-heading">Explainable Detection</h2>
+      <div id="evidenceList" class="evidence-list"></div>
+      <details class="raw-details"><summary>View raw API response</summary><pre id="rawResult"></pre></details>
+      <p class="disclaimer">Automated assessments can be wrong. Verify suspicious requests independently and never share credentials or one-time codes.</p>
+    </section>
+    <footer>CyberShield Â· Adaptive phishing detection Â· Academic project</footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

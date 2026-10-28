@@ -1,0 +1,14 @@
+services:
+  adaptive-phishing-detection:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+      - "8501:8501"
+    environment:
+      API_BASE_URL: http://127.0.0.1:8000
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    volumes:
+      - ./data/processed/adaptive_threat_memory.pkl:/app/data/processed/adaptive_threat_memory.pkl
+    restart: unless-stopped

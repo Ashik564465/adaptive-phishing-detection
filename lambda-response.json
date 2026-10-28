@@ -1,0 +1,1 @@
+{"statusCode": 200, "body": "{\"status\":\"ok\",\"service\":\"adaptive-phishing-detection\",\"adaptive_memory_documents\":6}", "headers": {"content-length": "85", "content-type": "application/json"}, "isBase64Encoded": false}

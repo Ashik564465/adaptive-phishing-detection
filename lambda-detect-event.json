@@ -1,0 +1,29 @@
+﻿{
+  "version": "2.0",
+  "routeKey": "POST /detect",
+  "rawPath": "/detect",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "accountId": "029939160248",
+    "apiId": "localtest",
+    "domainName": "localtest.lambda-url.ap-southeast-2.on.aws",
+    "domainPrefix": "localtest",
+    "http": {
+      "method": "POST",
+      "path": "/detect",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "127.0.0.1",
+      "userAgent": "local-test"
+    },
+    "requestId": "local-detect-test",
+    "routeKey": "POST /detect",
+    "stage": "$default",
+    "time": "11/Oct/2026:15:00:00 +0000",
+    "timeEpoch": 1791730800000
+  },
+  "isBase64Encoded": false,
+  "body": "{\"message_id\":\"lambda-test-001\",\"channel\":\"EMAIL\",\"subject\":\"Routine test message\",\"sender\":\"sender@example.com\",\"receiver\":\"recipient@example.com\",\"body\":\"Hello, this is a routine test message. Please review the meeting notes when convenient.\"}"
+}

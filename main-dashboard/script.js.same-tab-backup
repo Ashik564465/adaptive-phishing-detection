@@ -1,0 +1,20 @@
+﻿// Existing deployed API for email/SMS detection.
+const ADAPTIVE_API_URL =
+  "https://v43zg3og23.execute-api.ap-southeast-2.amazonaws.com";
+
+// Locally hosted adaptive frontend during development.
+// Change this to the deployed frontend URL after deployment.
+const ADAPTIVE_APP_URL = "http://adaptive-phishing-portal-2026.s3-website-ap-southeast-2.amazonaws.com/adaptive-ui/";
+
+// Verified existing Quishing S3 website.
+const QUISHING_APP_URL =
+  "http://adaptiveai.s3-website-ap-southeast-2.amazonaws.com/adaptive_shield_v3.html";
+
+document.getElementById("adaptiveBtn").addEventListener("click", () => {
+  window.open(ADAPTIVE_APP_URL, "_blank", "noopener,noreferrer");
+});
+
+document.getElementById("quishingBtn").addEventListener("click", () => {
+  window.open(QUISHING_APP_URL, "_blank", "noopener,noreferrer");
+});
+

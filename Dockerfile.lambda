@@ -1,0 +1,25 @@
+FROM public.ecr.aws/lambda/python:3.12
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    HF_HOME=/tmp/huggingface
+
+COPY requirements.lambda.txt .
+
+RUN pip install --upgrade pip \
+    && python -c "from pathlib import Path; p=Path('requirements.lambda.txt'); lines=p.read_text(encoding='utf-8').splitlines(); p.write_text('\n'.join(line for line in lines if not line.startswith('torch==')), encoding='utf-8')" \
+    && pip install -r requirements.lambda.txt --target "${LAMBDA_TASK_ROOT}" \
+    && pip install --no-deps --index-url https://download.pytorch.org/whl/cpu torch==2.14.0+cpu --target "${LAMBDA_TASK_ROOT}"
+
+COPY src "${LAMBDA_TASK_ROOT}/src"
+COPY models/phishing_classifier/config.json "${LAMBDA_TASK_ROOT}/models/phishing_classifier/config.json"
+COPY models/phishing_classifier/model.safetensors "${LAMBDA_TASK_ROOT}/models/phishing_classifier/model.safetensors"
+COPY models/phishing_classifier/special_tokens_map.json "${LAMBDA_TASK_ROOT}/models/phishing_classifier/special_tokens_map.json"
+COPY models/phishing_classifier/tokenizer.json "${LAMBDA_TASK_ROOT}/models/phishing_classifier/tokenizer.json"
+COPY models/phishing_classifier/tokenizer_config.json "${LAMBDA_TASK_ROOT}/models/phishing_classifier/tokenizer_config.json"
+COPY models/phishing_classifier/vocab.txt "${LAMBDA_TASK_ROOT}/models/phishing_classifier/vocab.txt"
+COPY data/processed/threat_memory_train_only.pkl "${LAMBDA_TASK_ROOT}/data/processed/threat_memory_train_only.pkl"
+COPY data/processed/adaptive_threat_memory.pkl "${LAMBDA_TASK_ROOT}/data/processed/adaptive_threat_memory.pkl"
+
+CMD ["src.lambda_handler.handler"]

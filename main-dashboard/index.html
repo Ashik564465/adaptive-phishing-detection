@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1220">
+  <title>CyberShield | Phishing Protection</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-icon">S</span>
+      <span><strong>CyberShield</strong><small>Threat Detection Platform</small></span>
+    </a>
+    <span class="status"><span class="dot"></span> Detection Portal</span>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <p class="eyebrow">UNIFIED CYBERSECURITY WORKSPACE</p>
+      <h1>One portal. <span>Two layers of protection.</span></h1>
+      <p class="intro">Choose a detection system to inspect suspicious messages or investigate potentially dangerous links and QR codes.</p>
+    </section>
+
+    <section class="cards" aria-label="Detection systems">
+      <article class="system-card adaptive">
+        <div class="icon-box">✉</div>
+        <p class="tag">SYSTEM 01</p>
+        <h2>Adaptive Phishing Detection</h2>
+        <p>Analyze suspicious email and SMS messages using the adaptive detection backend, model evidence, and threat memory.</p>
+        <ul>
+          <li>Email and SMS analysis</li>
+          <li>Risk score and evidence</li>
+          <li>Adaptive threat memory</li>
+        </ul>
+        <button id="adaptiveBtn" class="primary" type="button">
+          Open Adaptive Detector <span>↗</span>
+        </button>
+      </article>
+
+      <article class="system-card quishing">
+        <div class="icon-box">▦</div>
+        <p class="tag">SYSTEM 02</p>
+        <h2>Quishing Detection</h2>
+        <p>Open the QR-code phishing detection application to investigate suspicious QR codes and their destinations.</p>
+        <ul>
+          <li>QR-code investigation</li>
+          <li>Suspicious destination checks</li>
+          <li>Detection evidence</li>
+        </ul>
+        <button id="quishingBtn" class="secondary" type="button">
+          Open Quishing Detector <span>↗</span>
+        </button>
+        <p class="note" id="quishingNote">Configure the verified quishing app URL in script.js before use.</p>
+      </article>
+    </section>
+
+    <section class="notice">
+      <span class="notice-icon">盾</span>
+      <p><strong>Evidence first.</strong> A detection result is an assessment, not a guarantee. Verify suspicious messages, links, and QR destinations before interacting with them.</p>
+    </section>
+
+    <footer>CyberShield · Cloud-based Phishing Detection · Academic Project</footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
